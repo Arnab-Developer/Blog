@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
@@ -7,6 +7,7 @@ using LinkDotNet.Blog.Web.Features.Bookmarks;
 using LinkDotNet.Blog.Web.Features.Components;
 using LinkDotNet.Blog.Web.Features.Home;
 using LinkDotNet.Blog.Web.Features.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -170,5 +171,6 @@ public class IndexTests : SqlDatabaseTestBase<BlogPost>
         ctx.Services.AddScoped(_ => Options.Create(CreateSampleAppConfiguration(profilePictureUri).Introduction));
         ctx.Services.AddScoped(_ => Substitute.For<ICacheTokenProvider>());
         ctx.Services.AddScoped(_ => Substitute.For<IBookmarkService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
     }
 }

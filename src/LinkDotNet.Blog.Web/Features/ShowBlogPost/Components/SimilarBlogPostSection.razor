@@ -1,8 +1,10 @@
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure.Persistence
 @using LinkDotNet.Blog.Web.Features
+@using Microsoft.AspNetCore.Http
 @inject IRepository<BlogPost> BlogPostRepository
 @inject IRepository<SimilarBlogPost> SimilarBlogPostJobRepository
+@inject IHttpContextAccessor HttpContextAccessor
 
 @if (similarBlogPosts.Count > 0)
 {
@@ -82,8 +84,9 @@
         var similarBlogPostIds = await SimilarBlogPostJobRepository.GetByIdAsync(BlogPost.Id);
         if (similarBlogPostIds is not null)
         {
+            var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
             similarBlogPosts = await BlogPostRepository.GetAllAsync(
-                b => similarBlogPostIds.SimilarBlogPostIds.Contains(b.Id));
+                b => similarBlogPostIds.SimilarBlogPostIds.Contains(b.Id) && b.AuthorName == authorName);
         }
     }
 }

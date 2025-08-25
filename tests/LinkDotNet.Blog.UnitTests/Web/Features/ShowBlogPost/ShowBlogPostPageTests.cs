@@ -1,3 +1,5 @@
+using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AngleSharp.Html.Dom;
 using Blazored.Toast.Services;
@@ -12,6 +14,7 @@ using LinkDotNet.Blog.Web.Features.ShowBlogPost;
 using LinkDotNet.Blog.Web.Features.ShowBlogPost.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NCronJob;
@@ -26,12 +29,15 @@ public class ShowBlogPostPageTests : BunitContext
         ComponentFactories.Add<SimilarBlogPostSection, SimilarBlogPostSectionStub>();
         JSInterop.Mode = JSRuntimeMode.Loose;
         var shortCodeRepository = Substitute.For<IRepository<ShortCode>>();
-        shortCodeRepository.GetAllAsync().Returns(PagedList<ShortCode>.Empty);
+        shortCodeRepository.GetAllAsync(Arg.Any<Expression<Func<ShortCode, bool>>>()).Returns(PagedList<ShortCode>.Empty);
         Services.AddScoped(_ => shortCodeRepository);
         Services.AddScoped(_ => Substitute.For<IUserRecordService>());
         Services.AddScoped(_ => Substitute.For<IToastService>());
         Services.AddScoped(_ => Substitute.For<IInstantJobRegistry>());
         Services.AddScoped(_ => Options.Create(new ApplicationConfigurationBuilder().Build()));
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        Services.AddScoped(_ => contextAccessor);
         Services.AddScoped(_ => Substitute.For<IBookmarkService>());
         AddAuthorization();
         ComponentFactories.Add<PageTitle, PageTitleStub>();
@@ -48,7 +54,7 @@ public class ShowBlogPostPageTests : BunitContext
         repositoryMock.GetByIdAsync(blogPostId)!
             .Returns(new ValueTask<BlogPost>(Task.Run(async () => 
             {
-                await Task.Delay(250, cancellationToken: TestContext.Current.CancellationToken);
+                await Task.Delay(1000, cancellationToken: TestContext.Current.CancellationToken);
                 return new BlogPostBuilder().Build();
             })));
 

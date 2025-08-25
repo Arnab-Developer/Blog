@@ -2,9 +2,11 @@
 @using System.ComponentModel.DataAnnotations
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 
 @inject IRepository<ShortCode> ShortCodeRepository
 @inject IToastService ToastService
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Shortcodes</PageTitle>
 
@@ -70,7 +72,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        shortCodes = (await ShortCodeRepository.GetAllAsync()).ToList();
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        shortCodes = (await ShortCodeRepository.GetAllAsync(s => s.AuthorName == authorName)).ToList();
     }
 
     private void ToggleAccordion(string shortCodeId)
@@ -88,7 +91,8 @@
         }
         else
         {
-            var newShortCode = ShortCode.Create(model.Name, model.MarkdownContent);
+            var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+            var newShortCode = ShortCode.Create(model.Name, model.MarkdownContent, authorName);
             await ShortCodeRepository.StoreAsync(newShortCode);
             shortCodes.Add(newShortCode);
         }

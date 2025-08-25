@@ -1,5 +1,7 @@
-﻿@using LinkDotNet.Blog.Domain
+@using LinkDotNet.Blog.Domain
+@using Microsoft.AspNetCore.Http
 @inject IToastService ToastService
+@inject IHttpContextAccessor HttpContextAccessor
 <ModalDialog @ref="Dialog" Title="Add Skill">
     <EditForm Model="@model" OnValidSubmit="CreateSkillItem">
         <DataAnnotationsValidator />
@@ -49,7 +51,8 @@
 	    ArgumentNullException.ThrowIfNull(model.Skill);
 	    ArgumentNullException.ThrowIfNull(model.Capability);
 
-        var skill = Skill.Create(model.Skill, model.ImageUrl, model.Capability, model.Proficiency);
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        var skill = Skill.Create(model.Skill, model.ImageUrl, model.Capability, model.Proficiency, authorName);
         await SkillAdded.InvokeAsync(skill);
         model = new AddSkillModel();
         ToastService.ShowSuccess($"Created Skill {skill.Name} in capability {skill.Capability} with level {skill.ProficiencyLevel}");

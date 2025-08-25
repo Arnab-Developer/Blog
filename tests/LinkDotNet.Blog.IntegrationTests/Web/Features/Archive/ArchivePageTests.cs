@@ -8,6 +8,7 @@ using LinkDotNet.Blog.Infrastructure.Persistence;
 using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.Archive;
 using LinkDotNet.Blog.Web.Features.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -20,6 +21,7 @@ public class ArchivePageTests : SqlDatabaseTestBase<BlogPost>
     {
         using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         await Repository.StoreAsync(CreateBlogPost(new DateTime(2021, 1, 1), "Blog Post 1"));
         await Repository.StoreAsync(CreateBlogPost(new DateTime(2021, 2, 1), "Blog Post 2"));
         await Repository.StoreAsync(CreateBlogPost(new DateTime(2022, 1, 1), "Blog Post 3"));
@@ -43,6 +45,7 @@ public class ArchivePageTests : SqlDatabaseTestBase<BlogPost>
     {
         using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         var publishedBlogPost = new BlogPostBuilder().WithUpdatedDate(new DateTime(2022, 1, 1)).IsPublished().Build();
         var unPublishedBlogPost = new BlogPostBuilder().WithUpdatedDate(new DateTime(2022, 1, 1)).IsPublished(false).Build();
         await Repository.StoreAsync(publishedBlogPost);
@@ -59,6 +62,7 @@ public class ArchivePageTests : SqlDatabaseTestBase<BlogPost>
     {
         using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         await Repository.StoreAsync(CreateBlogPost(new DateTime(2021, 1, 1), "Blog Post 1"));
         await Repository.StoreAsync(CreateBlogPost(new DateTime(2021, 2, 1), "Blog Post 2"));
 
@@ -73,6 +77,7 @@ public class ArchivePageTests : SqlDatabaseTestBase<BlogPost>
     {
         using var ctx = new BunitContext();
         ctx.Services.AddScoped<IRepository<BlogPost>>(_ => new SlowRepository());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
 
         var cut = ctx.Render<ArchivePage>();
 
@@ -84,6 +89,7 @@ public class ArchivePageTests : SqlDatabaseTestBase<BlogPost>
     {
         using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
 
         var cut = ctx.Render<ArchivePage>();
 

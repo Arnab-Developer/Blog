@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.Infrastructure.Persistence;
 using LinkDotNet.Blog.Web.Features;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
@@ -27,11 +28,13 @@ public sealed class RssFeedController : ControllerBase
     private readonly string blogName;
     private readonly int blogPostsPerPage;
     private readonly IRepository<BlogPost> blogPostRepository;
+    private readonly IHttpContextAccessor httpContextAccessor;
 
     public RssFeedController(
         IOptions<Introduction> introductionConfiguration,
         IOptions<ApplicationConfiguration> applicationConfiguration,
-        IRepository<BlogPost> blogPostRepository)
+        IRepository<BlogPost> blogPostRepository,
+        IHttpContextAccessor httpContextAccessor)
     {
         ArgumentNullException.ThrowIfNull(introductionConfiguration);
         ArgumentNullException.ThrowIfNull(applicationConfiguration);
@@ -40,6 +43,7 @@ public sealed class RssFeedController : ControllerBase
         blogName = applicationConfiguration.Value.BlogName;
         blogPostsPerPage = applicationConfiguration.Value.BlogPostsPerPage;
         this.blogPostRepository = blogPostRepository;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     [ResponseCache(Duration = 1200)]
@@ -116,9 +120,10 @@ public sealed class RssFeedController : ControllerBase
 
     private async Task<IEnumerable<SyndicationItem>> GetBlogPostItems(string url)
     {
+        var authorName = httpContextAccessor.HttpContext?.User.Identity?.Name;
         var blogPosts = await blogPostRepository.GetAllByProjectionAsync(
             s => new BlogPostRssInfo(s.Id, s.Title, s.ShortDescription, null, s.UpdatedDate, s.PreviewImageUrl, s.Tags),
-            f => f.IsPublished,
+            f => f.IsPublished && f.AuthorName == authorName,
             orderBy: post => post.UpdatedDate);
         return blogPosts.Select(bp => CreateSyndicationItemFromBlogPost(url, bp));
     }
@@ -126,10 +131,10 @@ public sealed class RssFeedController : ControllerBase
     private async Task<IEnumerable<SyndicationItem>> GetBlogPostsItemsWithContent(string url, int? numberOfBlogPosts)
     {
         numberOfBlogPosts ??= blogPostsPerPage;
-
+        var authorName = httpContextAccessor.HttpContext?.User.Identity?.Name;
         var blogPosts = await blogPostRepository.GetAllByProjectionAsync(
             s => new BlogPostRssInfo(s.Id, s.Title, null, s.Content, s.UpdatedDate, s.PreviewImageUrl, s.Tags),
-            f => f.IsPublished,
+            f => f.IsPublished && f.AuthorName == authorName,
             orderBy: post => post.UpdatedDate,
             pageSize: numberOfBlogPosts.Value);
         return blogPosts.Select(bp => CreateSyndicationItemFromBlogPost(url, bp));

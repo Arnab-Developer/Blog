@@ -8,12 +8,13 @@ public class TalkTests
     [Fact]
     public void CreateTalkWithTrimmedWhiteSpaces()
     {
-        var talk = Talk.Create(" title ", " place ", " desc ", new DateTime(2022, 10, 2));
+        var talk = Talk.Create(" title ", " place ", " desc ", new DateTime(2022, 10, 2), "Test Author");
 
         talk.PresentationTitle.ShouldBe("title");
         talk.Place.ShouldBe("place");
         talk.Description.ShouldBe("desc");
         talk.PublishedDate.ShouldBe(new DateTime(2022, 10, 2));
+        talk.AuthorName.ShouldBe("Test Author");
     }
 
     [Theory]

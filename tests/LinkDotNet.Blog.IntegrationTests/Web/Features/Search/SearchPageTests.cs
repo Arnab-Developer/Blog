@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.Bookmarks;
 using LinkDotNet.Blog.Web.Features.Components;
 using LinkDotNet.Blog.Web.Features.Search;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.IntegrationTests.Web.Features.Search;
@@ -60,5 +61,6 @@ public class SearchPageTests : SqlDatabaseTestBase<BlogPost>
     {
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IBookmarkService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Linq.Expressions;
+using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Blazored.Toast.Services;
 using LinkDotNet.Blog.Domain;
@@ -11,6 +13,7 @@ using LinkDotNet.Blog.Web.Features.Admin.BlogPostEditor.Components;
 using LinkDotNet.Blog.Web.Features.Components;
 using LinkDotNet.Blog.Web.Features.Services;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NCronJob;
 
@@ -23,13 +26,17 @@ public class CreateNewBlogPostTests : BunitContext
     public CreateNewBlogPostTests()
     {
         var shortCodeRepository = Substitute.For<IRepository<ShortCode>>();
-        shortCodeRepository.GetAllAsync().Returns(PagedList<ShortCode>.Empty);
+        shortCodeRepository.GetAllAsync(Arg.Any<Expression<Func<ShortCode, bool>>>()).Returns(PagedList<ShortCode>.Empty);
         Services.AddScoped(_ => shortCodeRepository);
         JSInterop.SetupVoid("hljs.highlightAll");
         ComponentFactories.Add<MarkdownTextArea, MarkdownFake>();
         Services.AddScoped(_ => Substitute.For<IInstantJobRegistry>());
         Services.AddScoped<ICacheInvalidator>(_ => cacheService);
         Services.AddScoped(_ => Substitute.For<IToastService>());
+
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        Services.AddScoped(_ => contextAccessor);
     }
 
     [Fact]
@@ -61,6 +68,7 @@ public class CreateNewBlogPostTests : BunitContext
         blogPost.Tags.ShouldContain("Tag1");
         blogPost.Tags.ShouldContain("Tag2");
         blogPost.Tags.ShouldContain("Tag3");
+        blogPost.AuthorName.ShouldBe("Test Author");
     }
 
     [Fact]
@@ -87,6 +95,7 @@ public class CreateNewBlogPostTests : BunitContext
         blogPostFromComponent.Content.ShouldBe("Content");
         blogPostFromComponent.Tags.ShouldContain("tag1");
         blogPostFromComponent.Tags.ShouldContain("tag2");
+        blogPostFromComponent.AuthorName.ShouldContain("Test Author");
     }
 
     [Fact]
@@ -188,6 +197,7 @@ public class CreateNewBlogPostTests : BunitContext
         blogPost.Tags.ShouldContain("Tag1");
         blogPost.Tags.ShouldContain("Tag2");
         blogPost.Tags.ShouldContain("Tag3");
+        blogPost.AuthorName.ShouldContain("Test Author");
     }
 
     [Fact]

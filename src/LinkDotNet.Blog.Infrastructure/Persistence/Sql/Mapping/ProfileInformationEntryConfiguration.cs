@@ -1,4 +1,4 @@
-﻿using LinkDotNet.Blog.Domain;
+using LinkDotNet.Blog.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,5 +14,6 @@ internal sealed class ProfileInformationEntryConfiguration : IEntityTypeConfigur
             .ValueGeneratedOnAdd();
         builder.Property(c => c.Content).HasMaxLength(512).IsRequired();
         builder.Property(c => c.SortOrder).IsRequired();
+        builder.Property(x => x.AuthorName).HasMaxLength(256).IsRequired();
     }
 }

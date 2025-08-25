@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using LinkDotNet.Blog.Domain;
 
 namespace LinkDotNet.Blog.UnitTests.Domain;
@@ -8,12 +8,13 @@ public class SkillTests
     [Fact]
     public void ShouldCreateSkillTrimmedWhitespaces()
     {
-        var skill = Skill.Create(" C# ", "url", " Backend ", ProficiencyLevel.Expert.Key);
+        var skill = Skill.Create(" C# ", "url", " Backend ", ProficiencyLevel.Expert.Key, "Test Author");
 
         skill.Name.ShouldBe("C#");
         skill.IconUrl.ShouldBe("url");
         skill.Capability.ShouldBe("Backend");
         skill.ProficiencyLevel.ShouldBe(ProficiencyLevel.Expert);
+        skill.AuthorName.ShouldBe("Test Author");
     }
 
     [Theory]

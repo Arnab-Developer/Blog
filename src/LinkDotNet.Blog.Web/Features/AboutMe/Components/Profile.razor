@@ -1,12 +1,14 @@
-﻿@using LinkDotNet.Blog.Domain
+@using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure.Persistence
 @using LinkDotNet.Blog.Web.Features.Services
+@using Microsoft.AspNetCore.Http
 
 @inject IRepository<ProfileInformationEntry> Repository
 @inject ISortOrderCalculator SortOrderCalculator
+@inject IHttpContextAccessor HttpContextAccessor
 <div class="profile-card">
     <div class="profile-name">
-        <span>@ProfileInformation.Name</span>
+        <span>@authorName</span>
         <br/>
         <span>@ProfileInformation.Heading</span>
     </div>
@@ -47,11 +49,13 @@
 OnYesPressed="DeleteItem"></ConfirmDialog>
 
 @code {
+    private string? authorName;
+
     [Parameter]
     public bool ShowAdminActions { get; set; }
 
-	[Parameter, EditorRequired]
-	public required ProfileInformation ProfileInformation { get; set; }
+    [Parameter, EditorRequired]
+    public required ProfileInformation ProfileInformation { get; set; }
 
     private List<ProfileInformationEntry> profileInformationEntries = [];
     private ConfirmDialog Dialog { get; set; } = default!;
@@ -60,7 +64,8 @@ OnYesPressed="DeleteItem"></ConfirmDialog>
 
     protected override async Task OnInitializedAsync()
     {
-        profileInformationEntries = (await Repository.GetAllAsync(orderBy: d => d.SortOrder, descending: false)).ToList();
+        authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        profileInformationEntries = (await Repository.GetAllAsync(d => d.AuthorName == authorName, orderBy: d => d.SortOrder, descending: false)).ToList();
     }
 
     private void ShowDeleteDialog(string key)
@@ -79,7 +84,7 @@ OnYesPressed="DeleteItem"></ConfirmDialog>
     private async Task AddValue(string toAdd)
     {
         var sortOrder = GetSortOrder();
-        var newEntry = ProfileInformationEntry.Create(toAdd, sortOrder);
+        var newEntry = ProfileInformationEntry.Create(toAdd, sortOrder, authorName);
 
         profileInformationEntries.Add(newEntry);
         await Repository.StoreAsync(newEntry);

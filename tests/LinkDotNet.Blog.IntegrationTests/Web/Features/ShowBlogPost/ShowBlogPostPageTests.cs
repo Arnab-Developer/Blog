@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Blazored.Toast.Services;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.Infrastructure;
@@ -10,6 +12,7 @@ using LinkDotNet.Blog.Web.Features.Services;
 using LinkDotNet.Blog.Web.Features.ShowBlogPost;
 using LinkDotNet.Blog.Web.Features.ShowBlogPost.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -125,9 +128,9 @@ public class ShowBlogPostPageTests : SqlDatabaseTestBase<BlogPost>
         ctx.AddAuthorization();
         RegisterComponents(ctx);
         var shortCodesRepository = Substitute.For<IRepository<ShortCode>>();
-        var shortCode = ShortCode.Create("ONE", "Content");
+        var shortCode = ShortCode.Create("ONE", "Content", "Test Author");
         var returnValues = new PagedList<ShortCode>([shortCode], 1, 1, 1);
-        shortCodesRepository.GetAllAsync().Returns(returnValues);
+        shortCodesRepository.GetAllAsync(Arg.Any<Expression<Func<ShortCode, bool>>>()).Returns(returnValues);
         ctx.Services.AddScoped(_ => shortCodesRepository);
         var blogPost = new BlogPostBuilder().WithContent("This is a [[ONE]] shortcode").IsPublished().Build();
         await Repository.StoreAsync(blogPost);
@@ -147,8 +150,9 @@ public class ShowBlogPostPageTests : SqlDatabaseTestBase<BlogPost>
         ctx.Services.AddScoped(_ => Options.Create(new ApplicationConfigurationBuilder().Build()));
         ctx.Services.AddScoped(_ => Substitute.For<IInstantJobRegistry>());
         var shortCodeRepository = Substitute.For<IRepository<ShortCode>>();
-        shortCodeRepository.GetAllAsync().Returns(PagedList<ShortCode>.Empty);
+        shortCodeRepository.GetAllAsync(Arg.Any<Expression<Func<ShortCode, bool>>>()).Returns(PagedList<ShortCode>.Empty);
         ctx.Services.AddScoped(_ => shortCodeRepository);
         ctx.Services.AddScoped(_ => Substitute.For<IBookmarkService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
     }
 }

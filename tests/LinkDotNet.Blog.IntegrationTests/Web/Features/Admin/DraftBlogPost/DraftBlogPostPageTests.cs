@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.Admin.DraftBlogPost;
  using LinkDotNet.Blog.Web.Features.Bookmarks;
 using LinkDotNet.Blog.Web.Features.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.IntegrationTests.Web.Features.Admin.DraftBlogPost;
@@ -21,6 +22,7 @@ public class DraftBlogPostPageTests : SqlDatabaseTestBase<BlogPost>
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IBookmarkService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         var cut = ctx.Render<DraftBlogPostPage>();
         cut.WaitForElement(".blog-card");
 

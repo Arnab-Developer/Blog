@@ -8,6 +8,7 @@
 @using LinkDotNet.Blog.Web.Features.ShowBlogPost.Components
 @using LinkDotNet.Blog.Web.Features.SupportMe.Components
 @using LinkDotNet.Blog.Web.Features.Bookmarks.Components
+@using Microsoft.AspNetCore.Http
 @inject IRepository<BlogPost> BlogPostRepository
 @inject IRepository<ShortCode> ShortCodeRepository
 @inject IJSRuntime JsRuntime
@@ -17,6 +18,7 @@
 @inject IOptions<ProfileInformation> ProfileInformation
 @inject IOptions<SupportMeConfiguration> SupportConfiguration
 @inject IBookmarkService BookmarkService
+@inject IHttpContextAccessor HttpContextAccessor
 
 @if (isLoading)
 {
@@ -122,7 +124,8 @@ else if (BlogPost is not null)
 
 	protected override async Task OnInitializedAsync()
 	{
-		shortCodes = await ShortCodeRepository.GetAllAsync();
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+		shortCodes = await ShortCodeRepository.GetAllAsync(s => s.AuthorName == authorName);
 	}
 
 	protected override async Task OnParametersSetAsync()

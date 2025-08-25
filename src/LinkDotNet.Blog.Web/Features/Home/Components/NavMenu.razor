@@ -55,7 +55,7 @@
                     </ul>
                 </li>
 
-                <AccessControl CurrentUri="@currentUri"></AccessControl>
+                <AccessControl CurrentUri="@currentUri" AuthorName="@AuthorName"></AccessControl>
                 <li class="nav-item d-flex align-items-center"><ThemeToggler Class="nav-link"></ThemeToggler></li>
                 <li class="d-flex">
                     <SearchInput SearchEntered="NavigateToSearchPage"></SearchInput>
@@ -66,6 +66,9 @@
 </nav>
 @code {
     private string currentUri = string.Empty;
+
+    [SupplyParameterFromQuery]
+    public string AuthorName { get; set; } = string.Empty;
 
     protected override void OnInitialized()
     {

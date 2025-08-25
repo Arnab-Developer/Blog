@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
 
@@ -13,7 +13,8 @@ public class SkillRepositoryTests : SqlDatabaseTestBase<Skill>
             .WithSkillName("C#")
             .WithIconUrl("url")
             .WithCapability("Backend")
-            .WithProficiencyLevel(ProficiencyLevel.Expert).Build();
+            .WithProficiencyLevel(ProficiencyLevel.Expert)
+            .WithAuthorName("Test Author").Build();
         await Repository.StoreAsync(skill);
 
         var items = await Repository.GetAllAsync();
@@ -23,6 +24,7 @@ public class SkillRepositoryTests : SqlDatabaseTestBase<Skill>
         items[0].IconUrl.ShouldBe("url");
         items[0].Capability.ShouldBe("Backend");
         items[0].ProficiencyLevel.ShouldBe(ProficiencyLevel.Expert);
+        items[0].AuthorName.ShouldBe("Test Author");
     }
 
     [Fact]

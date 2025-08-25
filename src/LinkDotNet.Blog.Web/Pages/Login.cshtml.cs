@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using LinkDotNet.Blog.Web.Authentication;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,8 +14,9 @@ public sealed partial class LoginModel : PageModel
         this.loginManager = loginManager;
     }
 
-    public async Task OnGet(string redirectUri)
+    public async Task OnGet(string redirectUri, string authorName)
     {
-        await loginManager.SignInAsync(redirectUri);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorName);
+        await loginManager.SignInAsync(redirectUri, authorName);
     }
 }

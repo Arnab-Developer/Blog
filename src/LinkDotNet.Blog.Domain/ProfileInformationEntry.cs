@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 
 namespace LinkDotNet.Blog.Domain;
@@ -10,14 +10,23 @@ public sealed class ProfileInformationEntry : Entity
 
     public int SortOrder { get; set; }
 
-    public static ProfileInformationEntry Create(string key, int sortOrder)
+    public string AuthorName { get; private set; } = default!;
+
+    public static ProfileInformationEntry Create(string key, int sortOrder, string? authorName = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        return new ProfileInformationEntry
+        var profileInformationEntry = new ProfileInformationEntry
         {
             Content = key.Trim(),
             SortOrder = sortOrder,
         };
+
+        if (authorName is not null)
+        {
+            profileInformationEntry.AuthorName = authorName.Trim();
+        }
+
+        return profileInformationEntry;
     }
 }

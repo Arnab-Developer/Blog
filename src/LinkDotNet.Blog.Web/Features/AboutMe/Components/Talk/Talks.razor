@@ -1,6 +1,8 @@
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 @inject IRepository<Talk> Repository
+@inject IHttpContextAccessor HttpContextAccessor
 
 @if (talks.Any() || ShowAdminActions)
 {
@@ -27,7 +29,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        talks = (await Repository.GetAllAsync(orderBy: t => t.PublishedDate, descending: true)).ToList();
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        talks = (await Repository.GetAllAsync(t => t.AuthorName == authorName, orderBy: t => t.PublishedDate, descending: true)).ToList();
     }
 
     private async Task DeleteTalk(Talk talk)

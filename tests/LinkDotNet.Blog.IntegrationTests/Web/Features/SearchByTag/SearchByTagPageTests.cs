@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
@@ -6,6 +6,7 @@ using LinkDotNet.Blog.Web.Features.Bookmarks;
 using LinkDotNet.Blog.Web.Features.SearchByTag;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.IntegrationTests.Web.Features.SearchByTag;
@@ -48,6 +49,7 @@ public class SearchByTagTests : SqlDatabaseTestBase<BlogPost>
     {
         using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         ctx.ComponentFactories.Add<PageTitle, PageTitleStub>();
 
         var cut = ctx.Render<SearchByTagPage>(p => p.Add(s => s.Tag, "Tag"));
@@ -68,6 +70,7 @@ public class SearchByTagTests : SqlDatabaseTestBase<BlogPost>
     {
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IBookmarkService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());        
     }
     
     private class PageTitleStub : ComponentBase

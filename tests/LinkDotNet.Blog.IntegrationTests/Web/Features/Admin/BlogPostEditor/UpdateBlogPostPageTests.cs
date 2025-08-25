@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Blazored.Toast.Services;
@@ -13,6 +14,7 @@ using LinkDotNet.Blog.Web.Features.Admin.BlogPostEditor.Components;
 using LinkDotNet.Blog.Web.Features.Components;
 using LinkDotNet.Blog.Web.Features.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NCronJob;
@@ -38,8 +40,11 @@ public class UpdateBlogPostPageTests : SqlDatabaseTestBase<BlogPost>
         ctx.Services.AddScoped(_ => toastService);
         ctx.Services.AddScoped(_ => instantRegistry);
         var shortCodeRepository = Substitute.For<IRepository<ShortCode>>();
-        shortCodeRepository.GetAllAsync().Returns(PagedList<ShortCode>.Empty);
+        shortCodeRepository.GetAllAsync(Arg.Any<Expression<Func<ShortCode, bool>>>()).Returns(PagedList<ShortCode>.Empty);
         ctx.Services.AddScoped(_ => shortCodeRepository);
+        var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
+        httpContextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        ctx.Services.AddScoped(_ => httpContextAccessor);
         using var cut = ctx.Render<UpdateBlogPostPage>(
             p => p.Add(s => s.BlogPostId, blogPost.Id));
         var newBlogPost = cut.FindComponent<CreateNewBlogPost>();
@@ -49,6 +54,7 @@ public class UpdateBlogPostPageTests : SqlDatabaseTestBase<BlogPost>
         var blogPostFromDb = await DbContext.BlogPosts.SingleOrDefaultAsync(t => t.Id == blogPost.Id, TestContext.Current.CancellationToken);
         blogPostFromDb.ShouldNotBeNull();
         blogPostFromDb.ShortDescription.ShouldBe("My new Description");
+        blogPostFromDb.AuthorName.ShouldBe("Test Author");
         toastService.Received(1).ShowInfo("Updated BlogPost Title", null);
         instantRegistry.Received(1).RunInstantJob<SimilarBlogPostJob>(Arg.Any<object>(), Arg.Any<CancellationToken>());
     }

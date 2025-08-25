@@ -1,4 +1,4 @@
-﻿using LinkDotNet.Blog.Domain;
+using LinkDotNet.Blog.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,5 +19,6 @@ internal sealed class SkillConfiguration : IEntityTypeConfiguration<Skill>
         builder.Property(s => s.Name).HasMaxLength(128).IsRequired();
         builder.Property(s => s.IconUrl).HasMaxLength(1024);
         builder.Property(s => s.Capability).HasMaxLength(128).IsRequired();
+        builder.Property(x => x.AuthorName).HasMaxLength(256).IsRequired();
     }
 }

@@ -1,9 +1,11 @@
-﻿@page "/draft"
+@page "/draft"
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 @attribute [Authorize]
 @inject IRepository<BlogPost> BlogPostRepository
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Drafts</PageTitle>
 
@@ -23,7 +25,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        blogPosts = await BlogPostRepository.GetAllAsync(p => !p.IsPublished, b => b.UpdatedDate);
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        blogPosts = await BlogPostRepository.GetAllAsync(p => !p.IsPublished && p.AuthorName == authorName, b => b.UpdatedDate);
     }
 
 }

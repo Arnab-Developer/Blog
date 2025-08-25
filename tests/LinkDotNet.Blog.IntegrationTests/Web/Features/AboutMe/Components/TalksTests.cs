@@ -5,6 +5,7 @@ using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.TestUtilities.Fakes;
 using LinkDotNet.Blog.Web.Features.AboutMe.Components.Talk;
 using LinkDotNet.Blog.Web.Features.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TestContext = Xunit.TestContext;
@@ -18,6 +19,7 @@ public sealed class TalksTests : SqlDatabaseTestBase<Talk>, IDisposable
     public TalksTests()
     {
         ctx.Services.AddScoped(_ => Repository);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         ctx.ComponentFactories.Add<MarkdownTextArea, MarkdownFake>();
     }
 

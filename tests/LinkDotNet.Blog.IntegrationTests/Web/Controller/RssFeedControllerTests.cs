@@ -39,16 +39,20 @@ public class RssFeedControllerTests : SqlDatabaseTestBase<BlogPost>
             .WithPreviewImageUrl("preview1")
             .WithUpdatedDate(new DateTime(2022, 5, 1))
             .WithTags("C#", ".NET")
+            .WithAuthorName("Test Author")
             .Build();
         var blogPost2 = new BlogPostBuilder()
             .WithTitle("2")
             .WithShortDescription("**Short 2**")
             .WithPreviewImageUrl("preview2")
             .WithUpdatedDate(new DateTime(2022, 6, 1))
+            .WithAuthorName("Test Author")
             .Build();
         await Repository.StoreAsync(blogPost1);
         await Repository.StoreAsync(blogPost2);
-        var cut = new RssFeedController(introductionConfig, config, Repository)
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        var cut = new RssFeedController(introductionConfig, config, Repository, contextAccessor)
         {
             ControllerContext = controllerContext,
         };
@@ -117,16 +121,20 @@ public class RssFeedControllerTests : SqlDatabaseTestBase<BlogPost>
             .WithPreviewImageUrl("preview1")
             .WithUpdatedDate(new DateTime(2022, 5, 1))
             .WithTags("C#", ".NET")
+            .WithAuthorName("Test Author")
             .Build();
         var blogPost2 = new BlogPostBuilder()
             .WithTitle("2")
             .WithContent("**Content 2**")
             .WithPreviewImageUrl("preview2")
             .WithUpdatedDate(new DateTime(2022, 6, 1))
+            .WithAuthorName("Test Author")
             .Build();
         await Repository.StoreAsync(blogPost1);
         await Repository.StoreAsync(blogPost2);
-        var cut = new RssFeedController(introductionConfig, config, Repository)
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        var cut = new RssFeedController(introductionConfig, config, Repository, contextAccessor)
         {
             ControllerContext = controllerContext,
         };
@@ -195,16 +203,20 @@ public class RssFeedControllerTests : SqlDatabaseTestBase<BlogPost>
             .WithPreviewImageUrl("preview1")
             .WithUpdatedDate(new DateTime(2022, 5, 1))
             .WithTags("C#", ".NET")
+            .WithAuthorName("Test Author")
             .Build();
         var blogPost2 = new BlogPostBuilder()
             .WithTitle("2")
             .WithContent("**Content 2**")
             .WithPreviewImageUrl("preview2")
             .WithUpdatedDate(new DateTime(2022, 6, 1))
+            .WithAuthorName("Test Author")
             .Build();
         await Repository.StoreAsync(blogPost1);
         await Repository.StoreAsync(blogPost2);
-        var cut = new RssFeedController(introductionConfig, config, Repository)
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        var cut = new RssFeedController(introductionConfig, config, Repository, contextAccessor)
         {
             ControllerContext = controllerContext,
         };
@@ -263,16 +275,20 @@ public class RssFeedControllerTests : SqlDatabaseTestBase<BlogPost>
             .WithPreviewImageUrl("preview1")
             .WithUpdatedDate(new DateTime(2022, 5, 1))
             .WithTags("C#", ".NET")
+            .WithAuthorName("Test Author")
             .Build();
         var blogPost2 = new BlogPostBuilder()
             .WithTitle("2")
             .WithContent("**Content 2**")
             .WithPreviewImageUrl("preview2")
             .WithUpdatedDate(new DateTime(2022, 6, 1))
+            .WithAuthorName("Test Author")
             .Build();
         await Repository.StoreAsync(blogPost1);
         await Repository.StoreAsync(blogPost2);
-        var cut = new RssFeedController(introductionConfig, config, Repository)
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        var cut = new RssFeedController(introductionConfig, config, Repository, contextAccessor)
         {
             ControllerContext = controllerContext,
         };

@@ -1,13 +1,15 @@
-﻿@using System.Linq.Expressions
+@using System.Linq.Expressions
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure
 @using LinkDotNet.Blog.Infrastructure.Persistence
 @using System.Collections.Immutable
 @using System.Diagnostics
+@using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Logging
 @inject IRepository<BlogPost> BlogPostRepository
 @inject IRepository<BlogPostRecord> BlogPostRecordRepository
 @inject ILogger<VisitCountPerPage> Logger;
+@inject IHttpContextAccessor HttpContextAccessor;
 
 <div class="card">
     <div class="card-header">Blog Post Visit Counter</div>
@@ -61,11 +63,12 @@
 
 	private static async ValueTask<IPagedList<BlogPostVisitData>> GetRelevantBlogPostsAsync(
 		IRepository<BlogPost> blogPostRepository,
-		Filter filter)
+		Filter filter,
+        string authorName)
 	{
 		Expression<Func<BlogPost, bool>>? blogPostFilter = filter.EndDate.HasValue
-			? bp => bp.UpdatedDate.Date <= filter.EndDate.Value.ToDateTime(default)
-			: null;
+			? bp => bp.UpdatedDate.Date <= filter.EndDate.Value.ToDateTime(default) && bp.AuthorName == authorName
+            : bp => bp.AuthorName == authorName;
 
 		return await blogPostRepository.GetAllByProjectionAsync(
 			s => new BlogPostVisitData(s.Id, s.Title, s.Likes),
@@ -87,8 +90,10 @@
     {
 	    var stopwatch = Stopwatch.StartNew();
 
-	    var blogPosts = await GetRelevantBlogPostsAsync(BlogPostRepository, filter);
-	    var userRecords = await GetRelevantBlogPostRecords(BlogPostRecordRepository, filter);
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name ?? throw new InvalidOperationException();
+
+	    var blogPosts = await GetRelevantBlogPostsAsync(BlogPostRepository, filter, authorName);
+        var userRecords = await GetRelevantBlogPostRecords(BlogPostRecordRepository, filter);
 
 	    var time = stopwatch.ElapsedMilliseconds;
 	    Logger.LogDebug("Retrieving data took {ElapsedMilliseconds}ms", time);

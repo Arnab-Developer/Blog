@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using LinkDotNet.Blog.Domain;
@@ -8,6 +8,7 @@ using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.AboutMe.Components;
 using LinkDotNet.Blog.Web.Features.Components;
 using LinkDotNet.Blog.Web.Features.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.IntegrationTests.Web.Shared;
@@ -60,6 +61,7 @@ public class ProfileTests : BunitContext
         entryToDb.ShouldNotBeNull();
         entryToDb.Content.ShouldBe("key");
         entryToDb.SortOrder.ShouldBe(1000);
+        entryToDb.AuthorName.ShouldBe("Test Author");
     }
 
     [Fact]
@@ -112,6 +114,7 @@ public class ProfileTests : BunitContext
         entryToDb.ShouldNotBeNull();
         entryToDb.Content.ShouldBe("key");
         entryToDb.SortOrder.ShouldBe(1001);
+        entryToDb.AuthorName.ShouldBe("Test Author");
     }
 
     [Fact]
@@ -174,6 +177,9 @@ public class ProfileTests : BunitContext
                 Arg.Any<int>(),
                 Arg.Any<int>())
             .Returns(PagedList<ProfileInformationEntry>.Empty);
+        var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
+        httpContextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        Services.AddScoped(_ => httpContextAccessor);
         return (repoMock, calcMock);
     }
 

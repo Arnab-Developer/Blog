@@ -1,6 +1,7 @@
-﻿using Blazored.Toast.Services;
+using Blazored.Toast.Services;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.Web.Features.AboutMe.Components.Skill;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.UnitTests.Web.Features.AboutMe.Components;
@@ -13,6 +14,9 @@ public class AddSkillDialogTests : BunitContext
         Skill? addedSkill = null;
         var toastServiceMock = Substitute.For<IToastService>();
         Services.AddScoped(_ => toastServiceMock);
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        Services.AddScoped(_ => contextAccessor);
         var cut = Render<AddSkillDialog>(p =>
             p.Add(s => s.SkillAdded, t => addedSkill = t));
         cut.Find("#title").Change("C#");
@@ -27,6 +31,7 @@ public class AddSkillDialogTests : BunitContext
         addedSkill.IconUrl.ShouldBe("Url");
         addedSkill.Capability.ShouldBe("capability");
         addedSkill.ProficiencyLevel.ShouldBe(ProficiencyLevel.Expert);
+        addedSkill.AuthorName.ShouldBe("Test Author");
         toastServiceMock.Received(1).ShowSuccess(
             "Created Skill C# in capability capability with level Expert");
     }

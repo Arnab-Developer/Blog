@@ -1,10 +1,11 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp.Dom;
 using Blazored.Toast.Services;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.AboutMe.Components.Skill;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using TestContext = Xunit.TestContext;
 
@@ -20,6 +21,7 @@ public class SkillTableTests : SqlDatabaseTestBase<Skill>
         await Repository.StoreAsync(skill);
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         var cut = ctx.Render<SkillTable>(p =>
             p.Add(s => s.ShowAdminActions, true));
 
@@ -36,6 +38,7 @@ public class SkillTableTests : SqlDatabaseTestBase<Skill>
         using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         var cut = ctx.Render<SkillTable>(p =>
             p.Add(s => s.ShowAdminActions, true));
         cut.Find("button").Click();
@@ -64,6 +67,7 @@ public class SkillTableTests : SqlDatabaseTestBase<Skill>
         await Repository.StoreAsync(skill);
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
 
         var cut = ctx.Render<SkillTable>(p =>
             p.Add(s => s.ShowAdminActions, false));
@@ -80,6 +84,7 @@ public class SkillTableTests : SqlDatabaseTestBase<Skill>
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         var cut = ctx.Render<SkillTable>(p =>
             p.Add(s => s.ShowAdminActions, true));
         cut.WaitForElement(".skill-tag");
@@ -101,6 +106,7 @@ public class SkillTableTests : SqlDatabaseTestBase<Skill>
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
         var cut = ctx.Render<SkillTable>(p =>
             p.Add(s => s.ShowAdminActions, true));
         cut.WaitForElement(".skill-tag");

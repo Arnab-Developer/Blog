@@ -12,18 +12,27 @@ public sealed class Talk : Entity
 
     public DateTime PublishedDate { get; private set; }
 
-    public static Talk Create(string presentationTitle, string place, string description, DateTime publishedDate)
+    public string AuthorName { get; private set; } = default!;
+
+    public static Talk Create(string presentationTitle, string place, string description, DateTime publishedDate, string? authorName = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(presentationTitle);
         ArgumentException.ThrowIfNullOrWhiteSpace(place);
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
-        return new Talk
+        var talk = new Talk
         {
             PresentationTitle = presentationTitle.Trim(),
             PublishedDate = publishedDate,
             Place = place.Trim(),
             Description = description.Trim(),
         };
+
+        if (authorName is not null)
+        {
+            talk.AuthorName = authorName.Trim();
+        }
+
+        return talk;
     }
 }

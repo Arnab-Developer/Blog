@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Blazored.Toast.Services;
 using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities;
@@ -10,6 +10,7 @@ using LinkDotNet.Blog.Web.Features.AboutMe.Components.Skill;
 using LinkDotNet.Blog.Web.Features.AboutMe.Components.Talk;
 using LinkDotNet.Blog.Web.Features.Components;
 using LinkDotNet.Blog.Web.Features.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -77,10 +78,10 @@ public class AboutMePageTests : BunitContext
         var ogData = cut.FindComponent<OgData>().Instance;
         ogData.AbsolutePreviewImageUrl.ShouldBe("http://localhost/someurl");
         ogData.Keywords.ShouldNotBeNull();
-        ogData.Keywords.ShouldContain("My Name");
-        ogData.Title.ShouldContain("About Me - My Name");
+        ogData.Keywords.ShouldContain("Test Author");
+        ogData.Title.ShouldContain("About Me - Test Author");
         ogData.Description.ShouldNotBeNull();
-        ogData.Description.ShouldContain("About Me,My Name");
+        ogData.Description.ShouldContain("About Me,Test Author");
     }
 
     private void SetupMocks(ProfileInformation config, ApplicationConfiguration applicationConfiguration)
@@ -92,5 +93,9 @@ public class AboutMePageTests : BunitContext
         Services.RegisterRepositoryWithEmptyReturn<Skill>();
         Services.RegisterRepositoryWithEmptyReturn<Talk>();
         Services.AddScoped(_ => Substitute.For<IToastService>());
+
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        Services.AddScoped(_ => contextAccessor);
     }
 }

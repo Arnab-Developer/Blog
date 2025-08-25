@@ -1,6 +1,8 @@
-﻿@using LinkDotNet.Blog.Domain
+@using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 @inject IRepository<Skill> Repository
+@inject IHttpContextAccessor HttpContextAccessor
 <div>
         @if (ShowAdminActions)
         {
@@ -66,7 +68,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        skills = (await Repository.GetAllAsync()).ToList();
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        skills = (await Repository.GetAllAsync(s => s.AuthorName == authorName)).ToList();
     }
 
     private async Task AddSkill(Skill skillToAdd)

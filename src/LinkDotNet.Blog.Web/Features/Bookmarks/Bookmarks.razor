@@ -1,8 +1,10 @@
 @page "/bookmarks"
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 @inject IBookmarkService BookmarkService
 @inject IRepository<BlogPost> BlogPostRepository;
+@inject IHttpContextAccessor HttpContextAccessor
 
 <div class="container">
 	<h3 class="pb-3 fw-bold">Bookmarks</h3>
@@ -37,7 +39,8 @@
 
 			if (ids.Any())
 			{
-				bookmarkedPosts = await BlogPostRepository.GetAllByProjectionAsync(post => post, post => ids.Contains(post.Id));
+                var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+				bookmarkedPosts = await BlogPostRepository.GetAllByProjectionAsync(post => post, post => ids.Contains(post.Id) && post.AuthorName == authorName);
 				StateHasChanged();
 			}
 		}

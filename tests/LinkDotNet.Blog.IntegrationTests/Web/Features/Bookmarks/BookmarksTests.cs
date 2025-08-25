@@ -5,6 +5,7 @@ using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.Bookmarks;
 using LinkDotNet.Blog.Web.Features.Bookmarks.Components;
 using LinkDotNet.Blog.Web.Features.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.IntegrationTests.Web.Features.Bookmarks;
@@ -24,6 +25,7 @@ public class BookmarksTests : SqlDatabaseTestBase<BlogPost>
         bookmarkService.GetBookmarkedPostIds().Returns(new List<string> { bookmarkedBlogPost.Id });
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => bookmarkService);
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
 
         // Act
         var cut = ctx.Render<Blog.Web.Features.Bookmarks.Bookmarks>();
@@ -48,7 +50,8 @@ public class BookmarksTests : SqlDatabaseTestBase<BlogPost>
         bookmarkService.IsBookmarked(bookmarkedBlogPost.Id).Returns(true);
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => bookmarkService);
-        
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
+
         // Act
         var cut = ctx.Render<Blog.Web.Features.Bookmarks.Bookmarks>();
         cut.WaitForElement(".blog-card");
@@ -70,7 +73,8 @@ public class BookmarksTests : SqlDatabaseTestBase<BlogPost>
         bookmarkService.GetBookmarkedPostIds().Returns(new List<string>());
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => bookmarkService);
-        
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
+
         // Act
         var cut = ctx.Render<Blog.Web.Features.Bookmarks.Bookmarks>();
         

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp.Html.Dom;
@@ -8,6 +8,7 @@ using LinkDotNet.Blog.Infrastructure.Persistence.Sql;
 using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.Admin.Dashboard.Components;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestContext = Xunit.TestContext;
@@ -121,6 +122,7 @@ public class VisitCountPerPageTests : SqlDatabaseTestBase<BlogPost>
     {
         ctx.Services.AddScoped<IRepository<BlogPost>>(_ => new Repository<BlogPost>(DbContextFactory, Substitute.For<ILogger<Repository<BlogPost>>>()));
         ctx.Services.AddScoped<IRepository<BlogPostRecord>>(_ => new Repository<BlogPostRecord>(DbContextFactory, Substitute.For<ILogger<Repository<BlogPostRecord>>>()));
+        ctx.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
     }
 
     private async Task SaveBlogPostArticleClicked(string blogPostId, int count)

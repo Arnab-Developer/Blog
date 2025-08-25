@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @page "/{page:int}"
 @using Markdig
 @using LinkDotNet.Blog.Domain
@@ -6,6 +6,7 @@
 @using LinkDotNet.Blog.Infrastructure.Persistence
 @using LinkDotNet.Blog.Web.Features.Home.Components
 @using LinkDotNet.Blog.Web.Features.Services
+@using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Caching.Memory
 @using Microsoft.Extensions.Primitives
 @inject IMemoryCache MemoryCache
@@ -14,6 +15,7 @@
 @inject IOptions<Introduction> Introduction
 @inject IOptions<ApplicationConfiguration> AppConfiguration
 @inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>@AppConfiguration.Value.BlogName</PageTitle>
 
@@ -77,8 +79,12 @@
     }
 
 	private ValueTask<IPagedList<BlogPost>> GetAllForPageAsync(int page)
-		=> BlogPostRepository.GetAllAsync(
-		p => p.IsPublished,
-		b => b.UpdatedDate,
-		page: page, pageSize: AppConfiguration.Value.BlogPostsPerPage);
+	{
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+
+        return BlogPostRepository.GetAllAsync(
+		    p => p.IsPublished && p.AuthorName == authorName,
+		    b => b.UpdatedDate,
+		    page: page, pageSize: AppConfiguration.Value.BlogPostsPerPage);
+    }
 }

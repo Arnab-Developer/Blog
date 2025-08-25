@@ -1,8 +1,10 @@
-﻿@page "/search/{searchTerm}"
+@page "/search/{searchTerm}"
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 @inject IRepository<BlogPost> BlogPostRepository
+@inject IHttpContextAccessor HttpContextAccessor
 
 <h3>Results for @SearchTerm</h3>
 
@@ -20,8 +22,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+
         var term = Uri.UnescapeDataString(SearchTerm);
-        blogPosts = await BlogPostRepository.GetAllAsync(t => t.IsPublished && (t.Title.Contains(term)
+        blogPosts = await BlogPostRepository.GetAllAsync(t => t.IsPublished && t.AuthorName == authorName && (t.Title.Contains(term)
                                                                                 || t.Tags.Any(tag => tag == term)),
             b => b.UpdatedDate);
     }

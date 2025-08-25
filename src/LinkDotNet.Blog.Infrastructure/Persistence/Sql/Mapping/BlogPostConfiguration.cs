@@ -19,6 +19,7 @@ internal sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
         builder.Property(x => x.ShortDescription).IsRequired();
         builder.Property(x => x.Likes).IsRequired();
         builder.Property(x => x.IsPublished).IsRequired();
+        builder.Property(x => x.AuthorName).HasMaxLength(256).IsRequired();
 
         builder.Property(x => x.Tags).HasMaxLength(2048);
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using LinkDotNet.Blog.Domain;
 
@@ -113,7 +113,7 @@ public sealed class CreateNewModel
         };
     }
 
-    public BlogPost ToBlogPost()
+    public BlogPost ToBlogPost(string? authorName)
     {
         var tagList = string.IsNullOrWhiteSpace(Tags)
             ? []
@@ -131,7 +131,8 @@ public sealed class CreateNewModel
             updatedDate,
             scheduledPublishDate,
             tagList,
-            PreviewImageUrlFallback);
+            PreviewImageUrlFallback,
+            authorName);
         blogPost.Id = id;
         return blogPost;
     }

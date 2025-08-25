@@ -1,8 +1,10 @@
-﻿@page "/searchByTag/{tag}"
+@page "/searchByTag/{tag}"
 @using LinkDotNet.Blog.Domain
 @using LinkDotNet.Blog.Infrastructure
 @using LinkDotNet.Blog.Infrastructure.Persistence
+@using Microsoft.AspNetCore.Http
 @inject IRepository<BlogPost> BlogPostRepository
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Search for tag: @Tag</PageTitle>
 
@@ -19,9 +21,10 @@
     IReadOnlyList<BlogPost> blogPosts = PagedList<BlogPost>.Empty;
     protected override async Task OnParametersSetAsync()
     {
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
         Tag = Uri.UnescapeDataString(Tag);
         blogPosts = await BlogPostRepository.GetAllAsync(
-            b => b.IsPublished && b.Tags.Any(t => t == Tag),
+            b => b.IsPublished && b.Tags.Any(t => t == Tag) && b.AuthorName == authorName,
             b => b.UpdatedDate);
     }
 }

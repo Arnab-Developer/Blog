@@ -2,12 +2,14 @@
 @using LinkDotNet.Blog.Infrastructure
 @using LinkDotNet.Blog.Infrastructure.Persistence
 @using LinkDotNet.Blog.Web.Features.Services
+@using Microsoft.AspNetCore.Http
 @using NCronJob
 @using System.Threading
 @inject IJSRuntime JSRuntime
 @inject ICacheInvalidator CacheInvalidator
 @inject IInstantJobRegistry InstantJobRegistry
 @inject IRepository<ShortCode> ShortCodeRepository
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Creating new Blog Post</PageTitle>
 
@@ -278,7 +280,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        shortCodes = await ShortCodeRepository.GetAllAsync();
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        shortCodes = await ShortCodeRepository.GetAllAsync(s => s.AuthorName == authorName);
     }
 
     protected override void OnParametersSet()
@@ -322,7 +325,8 @@
     private async Task OnValidBlogPostCreatedAsync()
     {
         canSubmit = false;
-        await OnBlogPostCreated.InvokeAsync(model.ToBlogPost());
+        var authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        await OnBlogPostCreated.InvokeAsync(model.ToBlogPost(authorName));
         if (model.ShouldInvalidateCache)
         {
             CacheInvalidator.Cancel();

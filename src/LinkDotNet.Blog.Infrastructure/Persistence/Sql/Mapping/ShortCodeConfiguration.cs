@@ -17,5 +17,6 @@ internal sealed class ShortCodeConfiguration : IEntityTypeConfiguration<ShortCod
             .HasMaxLength(512);
         builder.Property(s => s.MarkdownContent)
             .IsRequired();
+        builder.Property(x => x.AuthorName).HasMaxLength(256).IsRequired();
     }
 }

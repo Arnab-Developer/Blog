@@ -4,6 +4,7 @@ using LinkDotNet.Blog.Infrastructure.Persistence;
 using LinkDotNet.Blog.Infrastructure.Persistence.Sql;
 using LinkDotNet.Blog.TestUtilities;
 using LinkDotNet.Blog.Web.Features.ShowBlogPost.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestContext = Xunit.TestContext;
@@ -32,7 +33,8 @@ public class SimilarBlogPostSectionTests : SqlDatabaseTestBase<BlogPost>
         context.Services.AddScoped<IRepository<SimilarBlogPost>>(_ =>
             new Repository<SimilarBlogPost>(DbContextFactory, Substitute.For<ILogger<Repository<SimilarBlogPost>>>()));
         context.Services.AddScoped(_ => Repository);
-        
+        context.Services.AddScoped(_ => Substitute.For<IHttpContextAccessor>());
+
         var cut = context.Render<SimilarBlogPostSection>(p => p.Add(s => s.BlogPost, blogPost1));
 
         var elements = cut.WaitForElements("h6");

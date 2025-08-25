@@ -14,6 +14,8 @@ public class ShortCode : Entity
 
     public string Name { get; set; }
 
+    public string AuthorName { get; private set; } = default!;
+
     public void Update(string name, string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -21,8 +23,15 @@ public class ShortCode : Entity
         Name = name;
     }
 
-    public static ShortCode Create(string name, string content)
+    public static ShortCode Create(string name, string content, string? authorName = null)
     {
-        return new ShortCode(name, content);
+        var shortCode = new ShortCode(name, content);
+
+        if (authorName is not null)
+        {
+            shortCode.AuthorName = authorName.Trim();
+        }
+
+        return shortCode;
     }
 }

@@ -1,4 +1,4 @@
-﻿using LinkDotNet.Blog.Domain;
+using LinkDotNet.Blog.Domain;
 
 namespace LinkDotNet.Blog.TestUtilities;
 
@@ -8,6 +8,7 @@ public class SkillBuilder
     private string? iconUrl;
     private string capability = "Backend";
     private ProficiencyLevel proficiencyLevel = ProficiencyLevel.Familiar;
+    private string authorName = "";
 
     public SkillBuilder WithSkillName(string skill)
     {
@@ -33,8 +34,14 @@ public class SkillBuilder
         return this;
     }
 
+    public SkillBuilder WithAuthorName(string authorName)
+    {
+        this.authorName = authorName;
+        return this;
+    }
+
     public Skill Build()
     {
-        return Skill.Create(skill, iconUrl, capability, proficiencyLevel.Key);
+        return Skill.Create(skill, iconUrl, capability, proficiencyLevel.Key, authorName);
     }
 }

@@ -5,6 +5,7 @@ using LinkDotNet.Blog.Domain;
 using LinkDotNet.Blog.TestUtilities.Fakes;
 using LinkDotNet.Blog.Web.Features.Admin.ShortCodes;
 using LinkDotNet.Blog.Web.Features.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LinkDotNet.Blog.IntegrationTests.Web.Features.Admin.ShortCodes;
@@ -17,6 +18,9 @@ public sealed class ShortCodesPageTests : SqlDatabaseTestBase<ShortCode>
         await using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        ctx.Services.AddScoped(_ => contextAccessor);
         ctx.ComponentFactories.Add<MarkdownTextArea, MarkdownFake>();
         var cut = ctx.Render<ShortCodesPage>();
         cut.Find("#short-code-content").Input("# Text");
@@ -28,16 +32,20 @@ public sealed class ShortCodesPageTests : SqlDatabaseTestBase<ShortCode>
         shortCodes.ShouldHaveSingleItem();
         shortCodes.First().MarkdownContent.ShouldBe("# Text");
         shortCodes.First().Name.ShouldBe("ShortName");
+        shortCodes.First().AuthorName.ShouldBe("Test Author");
     }
     
     [Fact]
     public async Task ShouldUpdateShortCode()
     {
         await using var ctx = new BunitContext();
-        var shortCode = ShortCode.Create("# Text", "ShortName");
+        var shortCode = ShortCode.Create("# Text", "ShortName", "Test Author");
         await Repository.StoreAsync(shortCode);
         ctx.Services.AddScoped(_ => Repository);
         ctx.Services.AddScoped(_ => Substitute.For<IToastService>());
+        var contextAccessor = Substitute.For<IHttpContextAccessor>();
+        contextAccessor.HttpContext?.User.Identity?.Name.Returns("Test Author");
+        ctx.Services.AddScoped(_ => contextAccessor);
         ctx.ComponentFactories.Add<MarkdownTextArea, MarkdownFake>();
         var cut = ctx.Render<ShortCodesPage>();
         cut.Find("#edit-shortcode").Click();
@@ -50,5 +58,6 @@ public sealed class ShortCodesPageTests : SqlDatabaseTestBase<ShortCode>
         shortCodes.ShouldHaveSingleItem();
         shortCodes.First().MarkdownContent.ShouldBe("# New Text");
         shortCodes.First().Name.ShouldBe("ShortName");
+        shortCodes.First().AuthorName.ShouldBe("Test Author");
     }
 }
