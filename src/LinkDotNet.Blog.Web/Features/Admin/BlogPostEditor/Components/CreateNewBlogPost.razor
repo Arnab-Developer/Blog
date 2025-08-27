@@ -8,6 +8,7 @@
 @inject ICacheInvalidator CacheInvalidator
 @inject IInstantJobRegistry InstantJobRegistry
 @inject IRepository<ShortCode> ShortCodeRepository
+@inject IOptions<ApplicationConfiguration> AppConfiguration
 
 <PageTitle>Creating new Blog Post</PageTitle>
 
@@ -239,6 +240,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        @if (AppConfiguration.Value.IsMultiModeEnabled)
+                        {
+                            <div class="card shadow-sm border-0 hover-shadow-lg transition">
+                                <div class="card-header border-bottom-0 py-3">
+                                    <h6 class="card-title mb-0 text-primary">Author</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <InputText type="text" class="form-control" id="authorName" @bind-Value="model.AuthorName" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
     </EditForm>
