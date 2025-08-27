@@ -2,12 +2,15 @@
 @using LinkDotNet.Blog.Infrastructure
 @using LinkDotNet.Blog.Infrastructure.Persistence
 @using LinkDotNet.Blog.Web.Features.Services
+@using Microsoft.AspNetCore.Http
 @using NCronJob
 @using System.Threading
 @inject IJSRuntime JSRuntime
 @inject ICacheInvalidator CacheInvalidator
 @inject IInstantJobRegistry InstantJobRegistry
 @inject IRepository<ShortCode> ShortCodeRepository
+@inject IOptions<ApplicationConfiguration> AppConfiguration
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Creating new Blog Post</PageTitle>
 
@@ -276,9 +279,16 @@
 
     private bool IsScheduled => model.ScheduledPublishDate.HasValue;
 
+    private string? authorName;
+
     protected override async Task OnInitializedAsync()
     {
         shortCodes = await ShortCodeRepository.GetAllAsync();
+
+        if (AppConfiguration.Value.IsMultiModeEnabled)
+        {
+            authorName = HttpContextAccessor.HttpContext?.User.Identity?.Name;
+        }
     }
 
     protected override void OnParametersSet()
@@ -297,17 +307,17 @@
         {
             return "Editing";
         }
-        
+
         if (model.IsPublished)
         {
             return "Ready to Publish";
         }
-        
+
         if (IsScheduled)
         {
             return "Scheduled";
         }
-        
+
         return "Draft";
     }
 
@@ -315,13 +325,14 @@
     {
         if (string.IsNullOrWhiteSpace(model.Content))
             return 1;
-            
+
         return ReadingTimeCalculator.CalculateReadingTime(model.Content);
     }
 
     private async Task OnValidBlogPostCreatedAsync()
     {
         canSubmit = false;
+        model.AuthorName = authorName;
         await OnBlogPostCreated.InvokeAsync(model.ToBlogPost());
         if (model.ShouldInvalidateCache)
         {
